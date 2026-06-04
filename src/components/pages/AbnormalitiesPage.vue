@@ -135,12 +135,39 @@
               </select>
               <LCButton
                 variant="primary"
-                :disabled="!selectedAgentId || !selectedWorkType"
+                :disabled="!selectedAgentId || !selectedWorkType || working"
                 @click="executeWork"
               >
-                <LCIcon name="play" :size="14" />
-                执行工作
+                {{ working ? '工作中...' : '执行工作' }}
               </LCButton>
+            </div>
+          </LCCard>
+
+          <!-- Work Result -->
+          <LCCard v-if="lastResult" title="工作记录">
+            <div class="work-result" :class="{ 'work-success': lastResult.success, 'work-fail': !lastResult.success }">
+              <div class="work-result-header">
+                <span class="work-result-icon">{{ lastResult.success ? '✓' : '✗' }}</span>
+                <span class="work-result-title">{{ lastResult.success ? '工作完成' : '工作未达标' }}</span>
+                <LCTag :variant="lastResult.success ? 'success' : 'warning'">
+                  {{ lastResult.success ? '成功' : '失败' }}
+                </LCTag>
+              </div>
+              <div class="work-result-body">
+                <div class="work-result-stats">
+                  <div class="work-stat"><span class="work-stat-label">员工</span><span>{{ lastResult.agentName }}</span></div>
+                  <div class="work-stat"><span class="work-stat-label">工作</span><span>{{ lastResult.workLabel }}</span></div>
+                  <div class="work-stat"><span class="work-stat-label">能量</span><span class="work-stat-energy">+{{ lastResult.energyGain }}</span></div>
+                  <div class="work-stat"><span class="work-stat-label">经验</span><span class="work-stat-exp">+{{ lastResult.experienceGain }}</span></div>
+                </div>
+                <div class="work-narrative">
+                  <p v-for="(line, i) in lastResult.narrative" :key="i">{{ line }}</p>
+                </div>
+                <div v-if="lastResult.neBoxDamage" class="work-nebox">
+                  <LCIcon name="AlertTriangle" :size="14" />
+                  <span>NE-Box 生成！{{ lastResult.agentName }} 受到 {{ lastResult.damageAmount }} 点精神损伤</span>
+                </div>
+              </div>
             </div>
           </LCCard>
         </template>
@@ -148,7 +175,7 @@
         <!-- Empty State -->
         <template v-else>
           <div class="empty-state">
-            <LCIcon name="alert-circle" :size="48" class="empty-icon" />
+            <LCIcon name="AlertCircle" :size="48" class="empty-icon" />
             <span class="empty-text">选择左侧异想体查看详情</span>
           </div>
         </template>
@@ -163,6 +190,7 @@ import { useAbnormalitiesStore } from '../../stores/abnormalities'
 import { useEmployeesStore } from '../../stores/employees'
 import { useFacilityStore } from '../../stores/facility'
 import { useUiStore } from '../../stores/ui'
+import { generateWorkResult, type WorkResult } from '../../data/work-narratives'
 import LCCard from '../shared/LCCard.vue'
 import LCTag from '../shared/LCTag.vue'
 import LCProgress from '../shared/LCProgress.vue'
@@ -177,6 +205,8 @@ const uiStore = useUiStore()
 const selectedId = ref<string>('')
 const selectedAgentId = ref<string>('')
 const selectedWorkType = ref<string>('')
+const lastResult = ref<WorkResult | null>(null)
+const working = ref(false)
 
 const selectedAbno = computed(() =>
   abnormalitiesStore.abnormalities.find(a => a.subjectId === selectedId.value) ?? null
@@ -185,6 +215,13 @@ const selectedAbno = computed(() =>
 const availableAgents = computed(() =>
   employeesStore.agents.filter(a => a.status === 'idle')
 )
+
+const VIRTUE_MAP: Record<string, string> = {
+  instinct: 'fortitude',
+  insight: 'prudence',
+  attachment: 'temperance',
+  repression: 'justice',
+}
 
 const workTypes = [
   { key: 'instinct', label: '本能' },
@@ -195,7 +232,16 @@ const workTypes = [
 
 function getWorkValue(key: string): number {
   if (!selectedAbno.value?.workPreferences) return 0
-  return selectedAbno.value.workPreferences[key] ?? 0
+  const mapped: Record<string, number> = {}
+  for (const [k, v] of Object.entries(selectedAbno.value.workPreferences)) {
+    mapped[k.toLowerCase()] = v
+  }
+  return mapped[key] ?? 0
+}
+
+function getVirtueLabel(key: string): string {
+  const labels: Record<string, string> = { instinct: '勇气', insight: '谨慎', attachment: '自律', repression: '正义' }
+  return labels[key] || key
 }
 
 function riskVariant(risk: string): string {
@@ -211,9 +257,42 @@ function riskVariant(risk: string): string {
 
 function executeWork() {
   const agent = employeesStore.agents.find(a => a.id === selectedAgentId.value)
-  const workLabel = workTypes.find(w => w.key === selectedWorkType.value)?.label ?? selectedWorkType.value
-  facility.collectEnergy(20)
-  uiStore.showToast(`${agent?.name ?? '员工'} 完成 [${workLabel}] 工作，能量 +20`, 'success')
+  if (!agent || !selectedAbno.value || !selectedWorkType.value) return
+
+  working.value = true
+  agent.status = 'working'
+
+  const workPrefKey = selectedWorkType.value.charAt(0).toUpperCase() + selectedWorkType.value.slice(1)
+  const workPref = selectedAbno.value.workPreferences[workPrefKey] || 1
+  const virtueKey = VIRTUE_MAP[selectedWorkType.value]
+  const agentVirtue = (agent as any)[virtueKey] || 1
+
+  const result = generateWorkResult(
+    agent.name,
+    selectedAbno.value.name,
+    selectedWorkType.value,
+    workTypes.find(w => w.key === selectedWorkType.value)?.label || selectedWorkType.value,
+    workPref,
+    agentVirtue,
+  )
+
+  lastResult.value = result
+
+  // Apply effects after short delay
+  setTimeout(() => {
+    facility.collectEnergy(result.energyGain)
+    agent.experience += result.experienceGain
+    agent.status = 'idle'
+    working.value = false
+
+    if (result.neBoxDamage) {
+      uiStore.showToast(`${agent.name} 受到精神损伤 (-${result.damageAmount} SP)`, 'error')
+    } else if (result.success) {
+      uiStore.showToast(`${result.workLabel}工作成功！能量 +${result.energyGain}`, 'success')
+    } else {
+      uiStore.showToast(`${result.workLabel}工作失败 能量 +${result.energyGain}`, 'warning')
+    }
+  }, 2200)
 }
 </script>
 
@@ -445,6 +524,24 @@ function executeWork() {
   line-height: 1.7;
   white-space: pre-wrap;
 }
+
+/* Work Result */
+.work-result { display: flex; flex-direction: column; gap: var(--space-sm); }
+.work-result-header { display: flex; align-items: center; gap: var(--space-sm); padding-bottom: var(--space-sm); border-bottom: 1px solid var(--lc-border); }
+.work-result-icon { font-size: 20px; font-weight: 700; }
+.work-success .work-result-icon { color: var(--lc-green); }
+.work-fail .work-result-icon { color: var(--lc-red); }
+.work-result-title { flex: 1; font-family: var(--font-display); font-size: var(--text-base); letter-spacing: 0.04em; }
+.work-result-body { display: flex; flex-direction: column; gap: var(--space-sm); }
+.work-result-stats { display: flex; flex-wrap: wrap; gap: var(--space-md); padding: var(--space-xs) 0; }
+.work-stat { display: flex; align-items: center; gap: var(--space-xs); font-size: var(--text-sm); }
+.work-stat-label { color: var(--lc-text-muted); font-family: var(--font-mono); font-size: var(--text-xs); }
+.work-stat-energy { color: var(--lc-yellow); font-family: var(--font-mono); font-weight: 700; }
+.work-stat-exp { color: var(--lc-blue); font-family: var(--font-mono); font-weight: 700; }
+.work-narrative { background: var(--lc-surface); padding: var(--space-sm) var(--space-md); border-radius: 2px; font-size: var(--text-sm); color: var(--lc-text-secondary); line-height: 1.8; }
+.work-narrative p { margin: 0; }
+.work-narrative p + p { margin-top: var(--space-xs); }
+.work-nebox { display: flex; align-items: center; gap: var(--space-xs); padding: var(--space-xs) var(--space-sm); background: var(--lc-red-glow); border: 1px solid var(--lc-red); color: var(--lc-red); font-size: var(--text-xs); font-family: var(--font-mono); border-radius: 2px; }
 
 /* Actions Bar */
 .actions-bar {
