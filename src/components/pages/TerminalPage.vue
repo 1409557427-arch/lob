@@ -83,7 +83,7 @@ function sendCmd() {
   const cmd = inputText.value.trim()
   if (!cmd || isStreaming.value) return
 
-  chatStore.addMessage({ role: 'user', content: cmd })
+  chatStore.addMessage({ id: crypto.randomUUID(), role: 'user', content: cmd, timestamp: Date.now() })
   inputText.value = ''
   isStreaming.value = true
   streamText.value = ''
@@ -99,7 +99,7 @@ function sendCmd() {
     } else {
       if (streamTimer) clearInterval(streamTimer)
       streamTimer = null
-      chatStore.addMessage({ role: 'assistant', content: streamText.value })
+      chatStore.addMessage({ id: crypto.randomUUID(), role: 'assistant', content: streamText.value, timestamp: Date.now() })
       streamText.value = ''
       isStreaming.value = false
       scrollToBottom()

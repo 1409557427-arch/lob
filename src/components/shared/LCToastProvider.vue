@@ -35,7 +35,7 @@ const getToastClass = (variant: string): string => {
     >
       <span class="lc-toast__dot" :class="`lc-toast__dot--${toast.variant ?? 'info'}`"></span>
       <span class="lc-toast__msg">{{ toast.message }}</span>
-      <button class="lc-toast__dismiss" @click="ui.removeToast(toast.id)" aria-label="Dismiss">
+      <button class="lc-toast__dismiss" @click="ui.dismissToast(toast.id)" aria-label="Dismiss">
         <LCIcon name="X" :size="14" />
       </button>
     </div>

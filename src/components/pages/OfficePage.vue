@@ -6,15 +6,15 @@
       <LCCard title="今日能量配额">
         <div class="quota-section">
           <LCProgress
-            :value="facilityStore.energyUsed"
-            :max="facilityStore.energyMax"
-            :variant="facilityStore.energyRemaining > 0 ? 'default' : 'success'"
-            :label="`${facilityStore.energyUsed} / ${facilityStore.energyMax}`"
+            :value="facilityStore.energyCollected"
+            :max="facilityStore.energyQuota"
+            :variant="facilityStore.energyQuota - facilityStore.energyCollected > 0 ? 'default' : 'default'"
+            :label="`${facilityStore.energyCollected} / ${facilityStore.energyQuota}`"
           />
           <div class="stat-row">
-            <template v-if="facilityStore.energyRemaining > 0">
+            <template v-if="facilityStore.energyQuota - facilityStore.energyCollected > 0">
               <span class="stat-label">剩余配额</span>
-              <span class="stat-value">{{ facilityStore.energyRemaining }}</span>
+              <span class="stat-value">{{ facilityStore.energyQuota - facilityStore.energyCollected }}</span>
             </template>
             <template v-else>
               <span class="stat-label">配额已完成</span>
@@ -29,7 +29,7 @@
         <div class="alert-section">
           <div class="alert-row">
             <span class="stat-label">警报等级</span>
-            <LCTag :variant="facilityStore.trumpetLevel > 0 ? 'danger' : 'success'">
+            <LCTag :variant="facilityStore.trumpetLevel > 0 ? 'danger' : 'default'">
               {{ facilityStore.trumpetLevel > 0 ? `等级 ${facilityStore.trumpetLevel}` : '无警报' }}
             </LCTag>
           </div>
@@ -39,7 +39,7 @@
           </div>
           <div class="alert-row">
             <span class="stat-label">员工死亡</span>
-            <span class="stat-value danger">{{ facilityStore.deathCount }}</span>
+            <span class="stat-value danger">{{ facilityStore.totalDeaths }}</span>
           </div>
         </div>
       </LCCard>
@@ -87,7 +87,7 @@
             <LCTag :variant="riskVariant(abno.riskLevel)">{{ abno.riskLevel }}</LCTag>
             <span class="abno-id">{{ abno.subjectId }}</span>
             <span class="abno-name">{{ abno.name }}</span>
-            <span class="abno-q">Q{{ abno.qCounter }}</span>
+            <span class="abno-q">Q{{ abno.qliphothCounter }}</span>
           </div>
         </div>
       </LCCard>
@@ -131,7 +131,7 @@ const idleCount = computed(() =>
 
 function riskVariant(risk: string): string {
   switch (risk) {
-    case 'ZAYIN': return 'success'
+    case 'ZAYIN': return 'default'
     case 'TETH': return 'default'
     case 'HE': return 'warning'
     case 'WAW': return 'danger'

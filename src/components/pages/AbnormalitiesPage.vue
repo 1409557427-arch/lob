@@ -16,7 +16,7 @@
             <LCTag :variant="riskVariant(abno.riskLevel)">{{ abno.riskLevel }}</LCTag>
             <span class="abno-list-id">{{ abno.subjectId }}</span>
             <span class="abno-list-name">{{ abno.name }}</span>
-            <span class="abno-list-q">Q{{ abno.qCounter }}</span>
+            <span class="abno-list-q">Q{{ abno.qliphothCounter }}</span>
           </div>
         </LCCard>
       </div>
@@ -35,14 +35,14 @@
               <div class="detail-stats">
                 <div class="detail-stat">
                   <span class="detail-stat-label">Qliphoth 计数器</span>
-                  <span class="detail-stat-value q-value">Q{{ selectedAbno.qCounter }}</span>
+                  <span class="detail-stat-value q-value">Q{{ selectedAbno.qliphothCounter }}</span>
                 </div>
                 <div class="detail-stat">
                   <span class="detail-stat-label">观察等级</span>
                   <LCProgress
                     :value="selectedAbno.observationLevel"
                     :max="4"
-                    :variant="selectedAbno.observationLevel >= 4 ? 'success' : 'default'"
+                    variant="default"
                     :label="`Lv.${selectedAbno.observationLevel}`"
                   />
                 </div>
@@ -210,10 +210,7 @@ function riskVariant(risk: string): string {
 function executeWork() {
   const agent = employeesStore.agents.find(a => a.id === selectedAgentId.value)
   const workLabel = workTypes.find(w => w.key === selectedWorkType.value)?.label ?? selectedWorkType.value
-  uiStore.showToast({
-    message: `${agent?.name ?? '未知员工'} 正在对 ${selectedAbno.value?.name} 进行 [${workLabel}] 工作`,
-    variant: 'info',
-  })
+  uiStore.showToast(`${agent?.name ?? '未知员工'} 正在对 ${selectedAbno.value?.name} 进行 [${workLabel}] 工作`, 'info')
 }
 </script>
 

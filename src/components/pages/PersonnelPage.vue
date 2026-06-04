@@ -11,7 +11,7 @@
       >
         <div class="agent-status-row">
           <LCTag :variant="statusVariant(agent.status)">{{ statusLabel(agent.status) }}</LCTag>
-          <span class="agent-exp">EXP {{ agent.exp ?? 0 }}</span>
+          <span class="agent-exp">EXP {{ agent.experience ?? 0 }}</span>
         </div>
 
         <!-- Virtue Bars -->
@@ -24,7 +24,7 @@
                 :style="{ width: `${((agent.fortitude ?? 0) / 120) * 100}%` }"
               />
             </div>
-            <span class="virtue-val">Lv.{{ agent.fortitudeLevel ?? 1 }}</span>
+            <span class="virtue-val">Lv.{{ agent.fortitude ?? 1 }}</span>
           </div>
           <div class="virtue-row">
             <span class="virtue-key">PRUD</span>
@@ -34,7 +34,7 @@
                 :style="{ width: `${((agent.prudence ?? 0) / 120) * 100}%` }"
               />
             </div>
-            <span class="virtue-val">Lv.{{ agent.prudenceLevel ?? 1 }}</span>
+            <span class="virtue-val">Lv.{{ agent.prudence ?? 1 }}</span>
           </div>
           <div class="virtue-row">
             <span class="virtue-key">TEMP</span>
@@ -44,7 +44,7 @@
                 :style="{ width: `${((agent.temperance ?? 0) / 120) * 100}%` }"
               />
             </div>
-            <span class="virtue-val">Lv.{{ agent.temperanceLevel ?? 1 }}</span>
+            <span class="virtue-val">Lv.{{ agent.temperance ?? 1 }}</span>
           </div>
           <div class="virtue-row">
             <span class="virtue-key">JUST</span>
@@ -54,7 +54,7 @@
                 :style="{ width: `${((agent.justice ?? 0) / 120) * 100}%` }"
               />
             </div>
-            <span class="virtue-val">Lv.{{ agent.justiceLevel ?? 1 }}</span>
+            <span class="virtue-val">Lv.{{ agent.justice ?? 1 }}</span>
           </div>
         </div>
 
@@ -76,27 +76,7 @@
           </div>
         </div>
 
-        <!-- HP / SP bars -->
-        <div class="agent-bars">
-          <div class="bar-row">
-            <span class="bar-label">HP</span>
-            <LCProgress
-              :value="agent.hp"
-              :max="agent.maxHp"
-              variant="danger"
-              :label="`${agent.hp}/${agent.maxHp}`"
-            />
-          </div>
-          <div class="bar-row">
-            <span class="bar-label">SP</span>
-            <LCProgress
-              :value="agent.sp"
-              :max="agent.maxSp"
-              variant="default"
-              :label="`${agent.sp}/${agent.maxSp}`"
-            />
-          </div>
-        </div>
+        <!-- HP & SP status replaced with fortitude/prudence virtue bars above -->
       </LCCard>
     </div>
 
@@ -259,26 +239,6 @@ function statusLabel(status: string): string {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-/* HP / SP Bars */
-.agent-bars {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-}
-
-.bar-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-}
-
-.bar-label {
-  font-family: var(--font-mono);
-  color: var(--lc-text-secondary);
-  font-size: 12px;
-  min-width: 22px;
 }
 
 /* Clerks Section */

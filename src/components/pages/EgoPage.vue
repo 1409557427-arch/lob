@@ -46,7 +46,7 @@
           <span><LCTag variant="default">{{ w.grade }}</LCTag></span>
           <span class="ego-damage">{{ w.damageType }}</span>
           <span class="ego-mono">{{ w.source }}</span>
-          <span class="ego-requirement">{{ w.requirement }}</span>
+          <span class="ego-requirement">{{ `${w.requiredVirtue} Lv.${w.requiredLevel}` }}</span>
         </div>
         <div v-if="egoStore.weapons.length === 0" class="ego-empty">
           暂无武器数据
@@ -73,10 +73,10 @@
         >
           <span class="ego-name">{{ s.name }}</span>
           <span><LCTag variant="default">{{ s.grade }}</LCTag></span>
-          <span :class="resistClass(s.red)">{{ s.red }}</span>
-          <span :class="resistClass(s.white)">{{ s.white }}</span>
-          <span :class="resistClass(s.black)">{{ s.black }}</span>
-          <span :class="resistClass(s.pale)">{{ s.pale }}</span>
+          <span :class="resistClass(s.resists.red)">{{ s.resists.red }}</span>
+          <span :class="resistClass(s.resists.white)">{{ s.resists.white }}</span>
+          <span :class="resistClass(s.resists.black)">{{ s.resists.black }}</span>
+          <span :class="resistClass(s.resists.pale)">{{ s.resists.pale }}</span>
           <span class="ego-mono">{{ s.source }}</span>
         </div>
         <div v-if="egoStore.suits.length === 0" class="ego-empty">
@@ -145,10 +145,7 @@ function resistClass(value: number): string {
 
 function extractEgo() {
   const abno = abnormalitiesStore.abnormalities.find(a => a.subjectId === extractAbnoId.value)
-  uiStore.showToast({
-    message: `从 ${abno?.name ?? '未知异想体'} 提取E.G.O.需要消耗PE-Box，是否继续？`,
-    variant: 'warning',
-  })
+  uiStore.showToast(`从 ${abno?.name ?? '未知异想体'} 提取E.G.O.需要消耗PE-Box，是否继续？`, 'warning')
 }
 </script>
 

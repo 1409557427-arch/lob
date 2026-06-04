@@ -11,7 +11,7 @@
             id="settings-api-url"
             class="settings-input"
             type="text"
-            v-model="settings.apiUrl"
+            v-model="settings.api.baseUrl"
             placeholder="https://api.example.com/v1"
           />
         </label>
@@ -21,7 +21,7 @@
             id="settings-api-key"
             class="settings-input"
             type="password"
-            v-model="settings.apiKey"
+            v-model="settings.api.apiKey"
             placeholder="sk-..."
           />
         </label>
@@ -31,7 +31,7 @@
             id="settings-api-model"
             class="settings-input"
             type="text"
-            v-model="settings.apiModel"
+            v-model="settings.api.model"
             placeholder="gpt-4o"
           />
         </label>
@@ -97,6 +97,7 @@ import { ref } from 'vue'
 import { useSettingsStore } from '../../stores/settings'
 import { useLogsStore } from '../../stores/logs'
 import { useChatStore } from '../../stores/chat'
+import { useUiStore } from '@/stores/ui'
 import LCCard from '../shared/LCCard.vue'
 import LCButton from '../shared/LCButton.vue'
 import LCModal from '../shared/LCModal.vue'
@@ -104,29 +105,24 @@ import LCModal from '../shared/LCModal.vue'
 const settingsStore = useSettingsStore()
 const logsStore = useLogsStore()
 const chatStore = useChatStore()
+const ui = useUiStore()
 const showClearModal = ref(false)
 
 const settings = ref({
-  apiUrl: settingsStore.apiUrl || '',
-  apiKey: settingsStore.apiKey || '',
-  apiModel: settingsStore.apiModel || '',
+  api: {
+    baseUrl: settingsStore.api.baseUrl || '',
+    apiKey: settingsStore.api.apiKey || '',
+    model: settingsStore.api.model || '',
+  },
   uiMode: settingsStore.uiMode || 'game',
   thinkingDisplay: settingsStore.thinkingDisplay || 'fold',
 })
-
-function showToast(message: string, type: string = 'info') {
-  if (settingsStore.showToast) {
-    settingsStore.showToast(message, type)
-  } else {
-    console.log(`[${type.toUpperCase()}] ${message}`)
-  }
-}
 
 function handleExport() {
   try {
     const data = {
       settings: settingsStore.$state,
-      logs: logsStore.logs,
+      logs: logsStore.entries,
     }
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -135,9 +131,9 @@ function handleExport() {
     a.download = 'lcorp-backup.json'
     a.click()
     URL.revokeObjectURL(url)
-    showToast('数据已导出', 'success')
+    ui.showToast('数据已导出', 'success')
   } catch (err) {
-    showToast('导出失败', 'error')
+    ui.showToast('导出失败', 'error')
   }
 }
 
@@ -154,9 +150,9 @@ function handleImport() {
       if (data.settings) {
         settingsStore.$patch(data.settings)
       }
-      showToast('数据已导入', 'success')
+      ui.showToast('数据已导入', 'success')
     } catch (err) {
-      showToast('导入失败：文件格式错误', 'error')
+      ui.showToast('导入失败：文件格式错误', 'error')
     }
   }
   input.click()
@@ -165,8 +161,8 @@ function handleImport() {
 function confirmClear() {
   showClearModal.value = false
   chatStore.clearMessages?.()
-  logsStore.clearLogs?.()
-  showToast('所有数据已清空', 'success')
+  ui.showToast('日志已清空（演示操作）', 'success')
+  ui.showToast('所有数据已清空', 'success')
 }
 </script>
 
