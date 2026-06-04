@@ -17,42 +17,30 @@
         <!-- Virtue Bars -->
         <div class="virtue-bars">
           <div class="virtue-row">
-            <span class="virtue-key">FORT</span>
+            <span class="virtue-key">勇气</span>
             <div class="virtue-track">
-              <div
-                class="virtue-fill"
-                :style="{ width: `${((agent.fortitude ?? 0) / 120) * 100}%` }"
-              />
+              <div class="virtue-fill" :style="{ width: `${((agent.fortitude ?? 0) / 5) * 100}%` }" />
             </div>
             <span class="virtue-val">Lv.{{ agent.fortitude ?? 1 }}</span>
           </div>
           <div class="virtue-row">
-            <span class="virtue-key">PRUD</span>
+            <span class="virtue-key">谨慎</span>
             <div class="virtue-track">
-              <div
-                class="virtue-fill"
-                :style="{ width: `${((agent.prudence ?? 0) / 120) * 100}%` }"
-              />
+              <div class="virtue-fill" :style="{ width: `${((agent.prudence ?? 0) / 5) * 100}%` }" />
             </div>
             <span class="virtue-val">Lv.{{ agent.prudence ?? 1 }}</span>
           </div>
           <div class="virtue-row">
-            <span class="virtue-key">TEMP</span>
+            <span class="virtue-key">自律</span>
             <div class="virtue-track">
-              <div
-                class="virtue-fill"
-                :style="{ width: `${((agent.temperance ?? 0) / 120) * 100}%` }"
-              />
+              <div class="virtue-fill" :style="{ width: `${((agent.temperance ?? 0) / 5) * 100}%` }" />
             </div>
             <span class="virtue-val">Lv.{{ agent.temperance ?? 1 }}</span>
           </div>
           <div class="virtue-row">
-            <span class="virtue-key">JUST</span>
+            <span class="virtue-key">正义</span>
             <div class="virtue-track">
-              <div
-                class="virtue-fill"
-                :style="{ width: `${((agent.justice ?? 0) / 120) * 100}%` }"
-              />
+              <div class="virtue-fill" :style="{ width: `${((agent.justice ?? 0) / 5) * 100}%` }" />
             </div>
             <span class="virtue-val">Lv.{{ agent.justice ?? 1 }}</span>
           </div>
@@ -177,10 +165,10 @@ function statusLabel(status: string): string {
 }
 
 .virtue-key {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   color: var(--lc-text-secondary);
   font-size: 12px;
-  width: 32px;
+  width: 28px;
   flex-shrink: 0;
 }
 

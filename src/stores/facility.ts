@@ -16,7 +16,7 @@ export const useFacilityStore = defineStore('facility', () => {
   const quotaMet = computed(() => energyCollected.value >= energyQuota.value)
 
   function collectEnergy(amount: number) { energyCollected.value = Math.min(energyQuota.value, energyCollected.value + amount) }
-  function advanceDay() { day.value++; energyCollected.value = 0; completedDays.value++ }
+  function advanceDay() { day.value++; energyCollected.value = 0; completedDays.value++; energyQuota.value = 100 + day.value * 20 }
   function setTrumpet(level: number) { trumpetLevel.value = Math.min(7, Math.max(0, level)); activeBreach.value = level > 0 }
 
   return { energyQuota, energyCollected, trumpetLevel, breachedCount, activeBreach, branchId, day, completedDays, totalDeaths, energyPercent, quotaMet, collectEnergy, advanceDay, setTrumpet }

@@ -25,7 +25,7 @@ const messagesEl = ref<HTMLElement | null>(null)
 function buildContext(): string {
   const agents = employees.agents.map(a =>
     `  ${a.name} — ${a.status === 'idle' ? '待命' : a.status === 'working' ? '工作中' : a.status === 'panicked' ? '恐慌中' : '已死亡'}
-    美德: FORT ${a.fortitude} PRUD ${a.prudence} TEMP ${a.temperance} JUST ${a.justice}
+    美德: 勇气 ${a.fortitude} 谨慎 ${a.prudence} 自律 ${a.temperance} 正义 ${a.justice}
     武器: ${a.weapon?.name || '无'} / 防具: ${a.suit?.name || '基础制服'}`
   ).join('\n')
 

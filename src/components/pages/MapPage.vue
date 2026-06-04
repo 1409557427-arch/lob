@@ -19,6 +19,7 @@
             :class="{ 'map-cell--breached': cell.breached }"
           >
             <span class="map-cell__id">{{ cell.subjectId }}</span>
+            <span class="map-cell__name">{{ cell.name }}</span>
             <div class="map-cell__meta">
               <LCTag :variant="riskVariant(cell.risk)">{{ cell.risk }}</LCTag>
               <span class="map-cell__qliphoth">Q: {{ cell.qliphoth }}</span>
@@ -37,10 +38,16 @@ import LCCard from '../shared/LCCard.vue'
 import LCTag from '../shared/LCTag.vue'
 
 const facility = useFacilityStore()
+import { useAbnormalitiesStore } from '../../stores/abnormalities'
+
+const abnoStore = useAbnormalitiesStore()
+
+const deptNames = ['控制部', '安保部', '情报部', '福利部']
 
 interface Cell {
   id: string
   subjectId: string
+  name: string
   risk: string
   qliphoth: number
   breached: boolean
@@ -52,39 +59,34 @@ interface Department {
   hasBreach: boolean
 }
 
-const departments = computed<Department[]>(() => [
-  {
-    name: '控制部',
-    cells: [
-      { id: 'c1', subjectId: 'O-03-03', risk: 'ZAYIN', qliphoth: 3, breached: false },
-    ],
-    hasBreach: false,
-  },
-  {
-    name: '安保部',
-    cells: [
-      { id: 'c2', subjectId: 'T-09-80', risk: 'HE', qliphoth: 2, breached: false },
-      { id: 'c3', subjectId: 'F-05-52', risk: 'TETH', qliphoth: 2, breached: false },
-    ],
-    hasBreach: facility.activeBreach,
-  },
-  {
-    name: '情报部',
-    cells: [
-      { id: 'c4', subjectId: 'O-05-30', risk: 'WAW', qliphoth: 1, breached: false },
-    ],
-    hasBreach: false,
-  },
-  {
-    name: '福利部',
-    cells: [],
-    hasBreach: false,
-  },
-])
+const departments = computed<Department[]>(() => {
+  const abnos = abnoStore.abnormalities
+  const cells = abnos.map((a, i) => ({
+    id: a.id,
+    subjectId: a.subjectId,
+    name: a.name,
+    risk: a.riskLevel,
+    qliphoth: a.qliphothCounter,
+    breached: false,
+  }))
+  // Distribute abnormalities across departments (max 2 per dept)
+  const result: Department[] = []
+  let idx = 0
+  for (const name of deptNames) {
+    const deptCells = cells.slice(idx, idx + 2)
+    result.push({
+      name,
+      cells: deptCells,
+      hasBreach: deptCells.some(c => c.breached) || facility.activeBreach,
+    })
+    idx += 2
+  }
+  return result
+})
 
 function riskVariant(risk: string): string {
   const map: Record<string, string> = {
-    ZAYIN: 'info',
+    ZAYIN: 'default',
     TETH: 'warning',
     HE: 'warning',
     WAW: 'danger',
@@ -164,6 +166,11 @@ function riskVariant(risk: string): string {
   font-size: 0.8125rem;
   color: var(--lc-text-primary);
   font-weight: 600;
+}
+.map-cell__name {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--lc-text-secondary);
 }
 
 .map-cell__meta {
