@@ -161,6 +161,7 @@
 import { ref, computed } from 'vue'
 import { useAbnormalitiesStore } from '../../stores/abnormalities'
 import { useEmployeesStore } from '../../stores/employees'
+import { useFacilityStore } from '../../stores/facility'
 import { useUiStore } from '../../stores/ui'
 import LCCard from '../shared/LCCard.vue'
 import LCTag from '../shared/LCTag.vue'
@@ -170,6 +171,7 @@ import LCIcon from '../shared/LCIcon.vue'
 
 const abnormalitiesStore = useAbnormalitiesStore()
 const employeesStore = useEmployeesStore()
+const facility = useFacilityStore()
 const uiStore = useUiStore()
 
 const selectedId = ref<string>('')
@@ -210,7 +212,8 @@ function riskVariant(risk: string): string {
 function executeWork() {
   const agent = employeesStore.agents.find(a => a.id === selectedAgentId.value)
   const workLabel = workTypes.find(w => w.key === selectedWorkType.value)?.label ?? selectedWorkType.value
-  uiStore.showToast(`${agent?.name ?? '未知员工'} 正在对 ${selectedAbno.value?.name} 进行 [${workLabel}] 工作`, 'info')
+  facility.collectEnergy(20)
+  uiStore.showToast(`${agent?.name ?? '员工'} 完成 [${workLabel}] 工作，能量 +20`, 'success')
 }
 </script>
 

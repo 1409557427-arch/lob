@@ -2,15 +2,15 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
 export const useFacilityStore = defineStore('facility', () => {
-  const energyQuota = ref(460)
-  const energyCollected = ref(240)
+  const energyQuota = ref(100)
+  const energyCollected = ref(0)
   const trumpetLevel = ref(0)
   const breachedCount = ref(0)
   const activeBreach = ref(false)
   const branchId = ref(47)
-  const day = ref(14)
-  const completedDays = ref(13)
-  const totalDeaths = ref(3)
+  const day = ref(1)
+  const completedDays = ref(0)
+  const totalDeaths = ref(0)
 
   const energyPercent = computed(() => Math.min(100, Math.round((energyCollected.value / energyQuota.value) * 100)))
   const quotaMet = computed(() => energyCollected.value >= energyQuota.value)

@@ -18,7 +18,7 @@
             </template>
             <template v-else>
               <span class="stat-label">配额已完成</span>
-              <LCIcon name="check-circle" :size="16" class="success-icon" />
+              <LCIcon name="CheckCircle" :size="16" class="success-icon" />
             </template>
           </div>
         </div>
@@ -48,12 +48,12 @@
       <LCCard title="E.G.O. 库存概览" clickable @click="$router.push('/ego')">
         <div class="ego-overview">
           <div class="overview-row">
-            <LCIcon name="sword" :size="18" />
+            <LCIcon name="Sword" :size="18" />
             <span class="stat-label">武器</span>
             <span class="stat-value">{{ egoStore.weapons.length }}</span>
           </div>
           <div class="overview-row">
-            <LCIcon name="shield" :size="18" />
+            <LCIcon name="Shield" :size="18" />
             <span class="stat-label">防具</span>
             <span class="stat-value">{{ egoStore.suits.length }}</span>
           </div>
@@ -64,12 +64,12 @@
       <LCCard title="员工状态" clickable @click="$router.push('/personnel')">
         <div class="personnel-overview">
           <div class="overview-row">
-            <LCIcon name="users" :size="18" />
+            <LCIcon name="Users" :size="18" />
             <span class="stat-label">员工总数</span>
             <span class="stat-value">{{ employeesStore.agents.length }}</span>
           </div>
           <div class="overview-row">
-            <LCIcon name="coffee" :size="18" />
+            <LCIcon name="Coffee" :size="18" />
             <span class="stat-label">待命中</span>
             <span class="stat-value">{{ idleCount }}</span>
           </div>
@@ -95,6 +95,7 @@
       <!-- 本日公告 -->
       <LCCard title="本日公告">
         <div class="announcements">
+          <div v-if="announcements.length === 0" class="announcement-empty">暂无公告</div>
           <div
             v-for="(ann, idx) in announcements"
             :key="idx"
@@ -102,6 +103,30 @@
           >
             <span class="ann-source">[{{ ann.source }}]</span>
             <span class="ann-text">{{ ann.text }}</span>
+          </div>
+        </div>
+      </LCCard>
+
+      <!-- 操作区 -->
+      <LCCard title="今日操作">
+        <div class="action-section">
+          <div class="action-row">
+            <LCButton variant="ghost" icon="Zap" @click="collectWorkEnergy" :disabled="facilityStore.quotaMet">
+              {{ facilityStore.quotaMet ? '今日配额已完成' : '模拟工作 (+30 能量)' }}
+            </LCButton>
+          </div>
+          <div class="action-divider" />
+          <div class="action-row">
+            <LCButton
+              variant="primary"
+              icon="SkipForward"
+              :disabled="!facilityStore.quotaMet"
+              @click="endDay"
+              class="end-day-btn"
+            >
+              结束这一天
+            </LCButton>
+            <span class="end-day-hint">完成能量配额后可结束今日工作</span>
           </div>
         </div>
       </LCCard>
@@ -120,10 +145,16 @@ import LCTag from '../shared/LCTag.vue'
 import LCProgress from '../shared/LCProgress.vue'
 import LCIcon from '../shared/LCIcon.vue'
 
+import { useLogsStore } from '../../stores/logs'
+import { useUiStore } from '../../stores/ui'
+import LCButton from '../shared/LCButton.vue'
+
 const facilityStore = useFacilityStore()
 const abnormalitiesStore = useAbnormalitiesStore()
 const employeesStore = useEmployeesStore()
 const egoStore = useEgoStore()
+const logsStore = useLogsStore()
+const ui = useUiStore()
 
 const idleCount = computed(() =>
   employeesStore.agents.filter(a => a.status === 'idle').length
@@ -140,10 +171,39 @@ function riskVariant(risk: string): string {
   }
 }
 
+function collectWorkEnergy() {
+  facilityStore.collectEnergy(30)
+  logsStore.entries.push({
+    id: crypto.randomUUID(),
+    day: facilityStore.day,
+    type: 'success',
+    message: `能量收集 +30。当前 ${facilityStore.energyCollected}/${facilityStore.energyQuota}`,
+    timestamp: Date.now()
+  })
+  if (facilityStore.quotaMet) {
+    ui.showToast('今日配额已完成！可以结束这一天。', 'success')
+  } else {
+    ui.showToast('能量 +30 单位', 'info')
+  }
+}
+
+function endDay() {
+  if (!facilityStore.quotaMet) return
+  const day = facilityStore.day
+  facilityStore.advanceDay()
+  logsStore.entries.push({
+    id: crypto.randomUUID(),
+    day: day,
+    type: 'success',
+    message: `Day ${day} 结束。配额已完成。`,
+    timestamp: Date.now()
+  })
+  ui.showToast(`Day ${day} 结束！欢迎来到 Day ${facilityStore.day}`, 'success')
+}
+
 const announcements = [
-  { source: 'Sephirah', text: '今日配额充足，请合理分配工作。' },
-  { source: '情报部', text: '异想体 O-01-04 情绪状态不稳定，建议加强观察。' },
-  { source: '福利部', text: '新 E.G.O. 武器已到库，请到装备部领取。' },
+  { source: 'Angela', text: '今日能量配额 ' + facilityStore.energyQuota + ' 单位。请合理分配工作。' },
+  { source: '情报部', text: '异想体 ' + (abnormalitiesStore.abnormalities[0]?.subjectId || '---') + ' 情绪状态稳定，可按计划工作。' },
 ]
 </script>
 
@@ -250,6 +310,37 @@ const announcements = [
   color: var(--lc-yellow);
   font-size: 13px;
   font-weight: 600;
+}
+
+.action-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.action-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+.action-divider {
+  height: 1px;
+  background: var(--lc-border);
+}
+.end-day-btn { min-width: 180px; }
+.end-day-btn:not(:disabled) {
+  background: var(--lc-yellow);
+  color: var(--lc-deep);
+  border-color: var(--lc-yellow);
+  animation: end-day-glow 2s ease-in-out infinite;
+}
+@keyframes end-day-glow {
+  0%, 100% { box-shadow: 0 0 8px var(--lc-yellow-glow); }
+  50% { box-shadow: 0 0 24px rgba(240,192,64,0.5); }
+}
+.end-day-hint {
+  font-size: var(--text-xs);
+  color: var(--lc-text-muted);
 }
 
 .announcements {
