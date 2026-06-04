@@ -36,6 +36,11 @@
           />
         </label>
       </form>
+        <div class="settings-actions" style="margin-top:var(--space-sm)">
+          <LCButton variant="primary" icon="Zap" @click="testConnection" :disabled="testing">
+            {{ testing ? "测试中..." : "测试连接" }}
+          </LCButton>
+        </div>
     </LCCard>
 
     <!-- 显示设置 -->
@@ -155,6 +160,27 @@ const settings = ref({
 const charCardPath = window.location.origin.includes('localhost') ? '/X-脑叶公司主管.json' : '/X-脑叶公司主管.json'
 const mvuPath = '/X-mvu-schema.js'
 const statusbarPath = '/X-statusbar.html'
+
+
+async function testConnection() {
+  testing.value = true
+  try {
+    const res = await fetch(settingsStore.api.baseUrl + "/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + settingsStore.api.apiKey },
+      body: JSON.stringify({ model: settingsStore.api.model || "deepseek-chat", messages: [{ role: "user", content: "ping" }], max_tokens: 5 })
+    })
+    if (res.ok) ui.showToast("连接成功！API 响应正常", "success")
+    else {
+      const err = await res.text().catch(() => "无响应体")
+      ui.showToast("连接失败 (" + res.status + "): " + err.substring(0, 80), "error")
+    }
+  } catch (err: any) {
+    ui.showToast("网络错误: " + (err.message || String(err)), "error")
+  }
+  testing.value = false
+}
+const testing = ref(false)
 
 function handleExport() {
   try {
