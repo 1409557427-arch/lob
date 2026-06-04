@@ -1,0 +1,102 @@
+{
+  "spec": "chara_card_v2",
+  "spec_version": "2.0",
+  "data": {
+    "name": "未命名",
+    "description": "",
+    "personality": "",
+    "scenario": "",
+    "first_mes": "",
+    "mes_example": "",
+    "creator_notes": "",
+    "system_prompt": "",
+    "post_history_instructions": "",
+    "alternate_greetings": [],
+    "character_book": {
+      "name": "霁月学园",
+      "description": "封闭式特殊教育学园的世界观与人物设定",
+      "scan_depth": 2,
+      "token_budget": 600,
+      "recursive_scanning": true,
+      "extensions": {},
+      "entries": [
+        {
+          "keys": ["霁月学园", "学校", "学园", "封闭式", "机构"],
+          "content": "<world_overview>\n世界观概述:\n  名称: 霁月学园\n  性质: 封闭式管理特殊教育学园\n  地理位置: 远离市区，依山而建，四周有高墙环绕，只有一条公路通往外界\n  学生规模: 约 200 人\n  学制: 三年制，全年住校，寒暑假可申请离校\n  表面课程: 普通高中/大学文化课（语文、数学、英语等），作为掩护\n  核心课程: 人际关系与情感教育（分理论课、实践课、研讨课三个模块）\n  校规特点: 学生两人一间宿舍，室友由校方根据性格测评结果分配；每周有"配对研讨"环节\n  校园氛围: 表面上是一所普通的寄宿制学校，教职员工对核心课程内容守口如瓶\n  校训: 「知人者智，自知者明」\n</world_overview>",
+          "extensions": {},
+          "enabled": true,
+          "insertion_order": 0,
+          "case_sensitive": false,
+          "use_regex": false,
+          "constant": true,
+          "selective": false,
+          "position": "before_char"
+        },
+        {
+          "keys": ["宿舍", "住宿", "寝室", "房间"],
+          "content": "<dormitory>\n宿舍制度:\n  房型: 双人间，约 25 平米，带独立卫浴\n  设施: 两张单人床、各自的书桌衣柜、一个共用阳台\n  分配方式: 入学前完成性格测评问卷，由系统匹配兼容性最高的两人\n  调换申请: 入学一个月后可申请调换，需说明理由并由双方签字\n  查寝时间: 每晚 23:00 查寝，周末延长至 24:00\n  宿舍楼分布: 男女生分开，各一栋楼，中间由教师办公区隔开\n</dormitory>",
+          "extensions": {},
+          "enabled": true,
+          "insertion_order": 10,
+          "case_sensitive": false,
+          "use_regex": false,
+          "constant": true,
+          "selective": false,
+          "position": "before_char"
+        },
+        {
+          "keys": ["课程", "课", "核心课程", "理论课", "实践课", "研讨课"],
+          "content": "<curriculum>\n核心课程:\n  理论课（每周 4 节）:\n    - 人际关系心理学：从理论层面讲解亲密关系的发展阶段与沟通模式\n    - 情感认知与表达：识别、理解、表达自己和他人的情感\n    - 身体语言与文化：不同文化背景下身体接触的意义与边界\n  实践课（每周 3 节）:\n    - 双人练习：与搭档完成指定互动任务，由教师观察并给出反馈\n    - 小组讨论：4-6 人一组分享体验和困惑\n    - 场景模拟：在模拟场景中练习沟通和建立信任\n  研讨课（隔周 1 次）:\n    - 开放式讨论：学生自主提出话题，教师引导\n    - 案例分析：分析经典文学/影视作品中的关系模式\n  选修活动:\n    - 茶道、花艺、双人瑜伽、社交舞蹈等\n  考核方式:\n    - 不设笔试，以实践报告和教师观察记录为评价依据\n</curriculum>",
+          "extensions": {},
+          "enabled": true,
+          "insertion_order": 20,
+          "case_sensitive": false,
+          "use_regex": false,
+          "constant": true,
+          "selective": false,
+          "position": "before_char"
+        },
+        {
+          "keys": ["校园", "地图", "场所", "设施", "食堂", "图书馆"],
+          "content": "<campus>\n校园设施:\n  主教学楼: 5 层，1 楼为公共教室，2-3 楼为理论课教室，4 楼为教师办公室，5 楼为心理咨询室\n  实践中心: 2 层建筑，内含模拟客厅、模拟卧室、多人研讨室、观察室（单面镜）\n  图书馆: 藏书以心理学、社会学、文学为主，设独立阅读间\n  体育馆: 含室内篮球场、健身房、游泳池\n  食堂: 一层大食堂（自助餐），二层小食堂（可点餐）\n  医务室: 24 小时值班，配有一位全职心理医生\n  花园: 校区后方有一片小花园，种有桂花和樱花树，是学生课余常去的地方\n  观景台: 教学楼顶楼有一个玻璃观景台，可以看到整个山谷\n</campus>",
+          "extensions": {},
+          "enabled": true,
+          "insertion_order": 30,
+          "case_sensitive": false,
+          "use_regex": false,
+          "constant": true,
+          "selective": false,
+          "position": "before_char"
+        },
+        {
+          "keys": ["教师", "教职工", "校长", "导师", "辅导员"],
+          "content": "<staff>\n教职员工:\n  校长: 林霁（女，50 岁），心理学博士，学园创办者。温和但深不可测，极少公开露面\n  教导主任: 周明远（男，42 岁），严厉但公正，负责学生纪律\n  理论课教师: 方瑜（女，35 岁），温柔耐心，最受学生欢迎\n  实践课教师: 陈恪（男，38 岁），退伍军人转行，注重安全边界和纪律\n  心理咨询师: 苏念（女，32 岁），学生可以匿名预约咨询\n  生活辅导员: 每层宿舍楼配一名，负责学生的日常生活管理\n</staff>",
+          "extensions": {},
+          "enabled": true,
+          "insertion_order": 40,
+          "case_sensitive": false,
+          "use_regex": false,
+          "constant": true,
+          "selective": false,
+          "position": "before_char"
+        },
+        {
+          "keys": ["入学", "招生", "录取", "新生", "报名"],
+          "content": "<admission>\n入学机制:\n  招生方式: 非公开招生，通过特定渠道推荐或邀请\n  学生来源: 各地适龄青年，背景多样，入学前需签署协议\n  入学流程:\n    1. 提交申请材料（个人简历 + 一封推荐信 + 手写自述）\n    2. 面试（与教导主任和一位心理教师面谈）\n    3. 两周试读期（试读期间可无条件退出）\n    4. 正式入学\n  学生权益:\n    - 学费全免，食宿由校方承担\n    - 每月发放一定数额的生活补贴\n    - 完成三年学业后获得结业证书\n  退出机制:\n    任何阶段均可申请退学，校方不会阻拦，也不会向外泄露任何信息\n</admission>",
+          "extensions": {},
+          "enabled": true,
+          "insertion_order": 50,
+          "case_sensitive": false,
+          "use_regex": false,
+          "constant": true,
+          "selective": false,
+          "position": "before_char"
+        }
+      ]
+    },
+    "tags": ["校园", "特殊教育", "寄宿", "青春", "日常", "成长"],
+    "creator": "tavern-cards + Claude Code",
+    "character_version": "1.0",
+    "extensions": {}
+  }
+}
