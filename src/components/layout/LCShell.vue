@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useUiStore } from '@/stores/ui'
-import LCTopBar from '@/components/layout/LCTopBar.vue'
-import LCSidebar from '@/components/layout/LCSidebar.vue'
-import LCAiDock from '@/components/layout/LCAiDock.vue'
-import LCIcon from '@/components/shared/LCIcon.vue'
+import { useUiStore } from '../../stores/ui'
+import LCTopBar from '../../components/layout/LCTopBar.vue'
+import LCSidebar from '../../components/layout/LCSidebar.vue'
+import LCAiDock from '../../components/layout/LCAiDock.vue'
+import LCIcon from '../shared/LCIcon.vue'
 
 const ui = useUiStore()
 

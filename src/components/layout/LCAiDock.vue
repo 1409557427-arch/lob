@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref, nextTick, watch, onUnmounted } from 'vue'
-import { useChatStore } from '@/stores/chat'
-import { useUiStore } from '@/stores/ui'
-import { useFacilityStore } from '@/stores/facility'
-import type { ChatMessage } from '@/stores/chat'
-import LCIcon from '@/components/shared/LCIcon.vue'
+import { useChatStore } from '../../stores/chat'
+import { useUiStore } from '../../stores/ui'
+import { useFacilityStore } from '../../stores/facility'
+import type { ChatMessage } from '../../stores/chat'
+import LCIcon from '../shared/LCIcon.vue'
 
 const chat = useChatStore()
 const ui = useUiStore()

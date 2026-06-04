@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useFacilityStore } from '@/stores/facility'
-import LCIcon from '@/components/shared/LCIcon.vue'
+import { useFacilityStore } from '../../stores/facility'
+import LCIcon from '../shared/LCIcon.vue'
 
 const facility = useFacilityStore()
 
