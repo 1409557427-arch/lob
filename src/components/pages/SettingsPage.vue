@@ -157,9 +157,9 @@ const settings = ref({
   thinkingDisplay: settingsStore.thinkingDisplay || 'fold',
 })
 
-const charCardPath = window.location.origin.includes('localhost') ? '/X-脑叶公司主管.json' : '/X-脑叶公司主管.json'
-const mvuPath = '/X-mvu-schema.js'
-const statusbarPath = '/X-statusbar.html'
+const charCardPath = '/角色卡绑定/X-脑叶公司主管.json'
+const mvuPath = '/角色卡绑定/X-mvu-schema.js'
+const statusbarPath = '/角色卡绑定/X-statusbar.html'
 
 
 async function testConnection() {
