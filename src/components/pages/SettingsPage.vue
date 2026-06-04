@@ -127,7 +127,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useSettingsStore } from '../../stores/settings'
 import { useLogsStore } from '../../stores/logs'
 import { useChatStore } from '../../stores/chat'
@@ -195,6 +195,11 @@ function handleImport() {
   }
   input.click()
 }
+
+
+watch(settings, (val) => {
+  settingsStore.$patch({ api: val.api, uiMode: val.uiMode, thinkingDisplay: val.thinkingDisplay })
+}, { deep: true })
 
 function confirmClear() {
   showClearModal.value = false
