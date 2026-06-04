@@ -1,40 +1,49 @@
 <script setup lang="ts">
-import { ref, nextTick, watch, onUnmounted } from 'vue'
+import { ref, nextTick, onUnmounted } from 'vue'
 import { useChatStore } from '../../stores/chat'
 import { useUiStore } from '../../stores/ui'
 import { useFacilityStore } from '../../stores/facility'
+import { useAbnormalitiesStore } from '../../stores/abnormalities'
+import { useEmployeesStore } from '../../stores/employees'
+import { useApiClient } from '../../composables/useApiClient'
+import { ANGELA_SYSTEM_PROMPT } from '../../data/angela-prompt'
 import type { ChatMessage } from '../../stores/chat'
 import LCIcon from '../shared/LCIcon.vue'
 
 const chat = useChatStore()
 const ui = useUiStore()
 const facility = useFacilityStore()
+const abnormalities = useAbnormalitiesStore()
+const employees = useEmployeesStore()
+const api = useApiClient()
 
 // ---- Input ----
 const inputText = ref('')
 const messagesEl = ref<HTMLElement | null>(null)
-let mockTimer: ReturnType<typeof setInterval> | null = null
-let mockTimeout: ReturnType<typeof setTimeout> | null = null
 
-// ---- Mock AI response generator ----
-function generateMockReply(userMessage: string): string {
-  const msg = userMessage.toLowerCase()
-  if (msg.includes('状态')) {
-    return `设施状态报告：\n> 当前能源收集：${facility.energyCollected} / ${facility.energyQuota} (${facility.energyPercent}%)\n> 已过天数：${facility.completedDays}\n> 当前日：DAY ${facility.day}\n> 警报等级：${facility.trumpetLevel}\n> 突破异常数：${facility.breachedCount}\n> 员工死亡数：${facility.totalDeaths}\n\n主管，建议优先完成能源配额。`
-  }
-  if (msg.includes('查看') || msg.includes('帮助') || msg.includes('help')) {
-    return `可用指令：\n> 「状态」— 查看设施当前状态\n> 「员工」— 查看员工列表\n> 「异想体」— 查看异想体信息\n> 「工作」— 指派员工工作\n> 「镇压」— 处理异常情况\n\n请输入指令，主管。`
-  }
-  if (msg.includes('你好') || msg.includes('hello') || msg.includes('hi')) {
-    return '主管，您好。我是Angela，LC-47设施的AI终端。请下达指令。'
-  }
-  if (msg.includes('员工')) {
-    return '员工管理系统已接入。您可以通过主管办公室查看所有员工状态、等级和E.G.O.装备。需要我列出当前员工吗？'
-  }
-  if (msg.includes('异想体') || msg.includes('异常')) {
-    return '异想体数据库在线。当前设施内所有异想体信息可通过异想体管理页面查看。请注意高风险等级（WAW、ALEPH）个体的工作安排。'
-  }
-  return `收到指令：「${userMessage}」\n\n主管，我是Angela终端。我可以帮您：\n> 查看设施状态\n> 管理员工与E.G.O.\n> 监控异想体\n> 查看日志记录\n\n请具体说明您的需求。`
+// ---- Build context for Angela ----
+function buildContext(): string {
+  const agents = employees.agents.map(a =>
+    `  ${a.name} — ${a.status === 'idle' ? '待命' : a.status === 'working' ? '工作中' : a.status === 'panicked' ? '恐慌中' : '已死亡'}
+    美德: FORT ${a.fortitude} PRUD ${a.prudence} TEMP ${a.temperance} JUST ${a.justice}
+    武器: ${a.weapon?.name || '无'} / 防具: ${a.suit?.name || '基础制服'}`
+  ).join('\n')
+
+  const abnos = abnormalities.abnormalities.map(a =>
+    `  ${a.subjectId} ${a.name} — ${a.riskLevel}
+    Q计数器: ${a.qliphothCounter}/${a.maxQliphoth}
+    工作偏好: Instinct ${a.workPreferences.Instinct} Insight ${a.workPreferences.Insight} Attachment ${a.workPreferences.Attachment} Repression ${a.workPreferences.Repression}
+    攻击: ${a.attackType}`
+  ).join('\n')
+
+  return `当前设施状态:
+Day ${facility.day} | 能量 ${facility.energyCollected}/${facility.energyQuota}${facility.quotaMet ? ' (配额已满)' : ''} | Trumpet ${facility.trumpetLevel > 0 ? '等级' + facility.trumpetLevel : '正常'}${facility.activeBreach ? ' ⚠突破中' : ''}
+
+员工:
+${agents}
+
+异想体:
+${abnos}`
 }
 
 // ---- Scroll to bottom ----
@@ -50,7 +59,6 @@ function handleSend() {
   const text = inputText.value.trim()
   if (!text || chat.isStreaming) return
 
-  // Add user message
   const userMsg: ChatMessage = {
     id: `msg-${Date.now()}-user`,
     role: 'user',
@@ -61,46 +69,47 @@ function handleSend() {
   inputText.value = ''
   scrollToBottom()
 
-  // Simulate AI streaming
-  const reply = generateMockReply(text)
-  simulateStreaming(reply)
-}
+  // Build messages array for API
+  const context = buildContext()
+  const apiMessages = [
+    { role: 'system', content: ANGELA_SYSTEM_PROMPT },
+    { role: 'system', content: context },
+    ...chat.messages.slice(0, 20).map(m => ({ role: m.role, content: m.content })),
+    { role: 'user', content: text },
+  ]
 
-// ---- Simulate streaming ----
-function simulateStreaming(fullText: string) {
+  // Start streaming from API
   chat.isStreaming = true
   chat.streamText = ''
-  let idx = 0
 
-  mockTimer = setInterval(() => {
-    if (idx < fullText.length) {
-      chat.streamText = fullText.slice(0, idx + 1)
-      idx++
+  api.sendMessage(
+    apiMessages,
+    (partial) => { chat.streamText = partial; scrollToBottom() },
+    (full) => {
+      chat.isStreaming = false
+      const assistantMsg: ChatMessage = {
+        id: `msg-${Date.now()}-assistant`,
+        role: 'assistant',
+        content: full,
+        timestamp: Date.now(),
+      }
+      chat.addMessage(assistantMsg)
+      chat.streamText = ''
       scrollToBottom()
-    } else {
-      finishStreaming(fullText)
+    },
+    (err) => {
+      chat.isStreaming = false
+      const errMsg: ChatMessage = {
+        id: `msg-${Date.now()}-error`,
+        role: 'assistant',
+        content: `[错误] ${err}`,
+        timestamp: Date.now(),
+      }
+      chat.addMessage(errMsg)
+      chat.streamText = ''
+      scrollToBottom()
     }
-  }, 30)
-}
-
-function finishStreaming(fullText: string) {
-  clearMockTimers()
-  chat.isStreaming = false
-
-  const assistantMsg: ChatMessage = {
-    id: `msg-${Date.now()}-assistant`,
-    role: 'assistant',
-    content: fullText,
-    timestamp: Date.now(),
-  }
-  chat.addMessage(assistantMsg)
-  chat.streamText = ''
-  scrollToBottom()
-}
-
-function clearMockTimers() {
-  if (mockTimer) { clearInterval(mockTimer); mockTimer = null }
-  if (mockTimeout) { clearTimeout(mockTimeout); mockTimeout = null }
+  )
 }
 
 // ---- Handle Enter key ----
@@ -145,7 +154,7 @@ function handleClear() {
 
 // ---- Lifecycle ----
 onUnmounted(() => {
-  clearMockTimers()
+  api.abort()
   document.removeEventListener('mousemove', onResizeMouseMove)
   document.removeEventListener('mouseup', onResizeMouseUp)
 })
