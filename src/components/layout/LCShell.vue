@@ -23,7 +23,11 @@ const mainStyle = computed(() => ({
 
     <main class="shell-main" :style="mainStyle">
       <div class="shell-content">
-        <slot />
+        <router-view v-slot="{ Component }">
+          <transition name="page-wipe" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
       </div>
     </main>
 
