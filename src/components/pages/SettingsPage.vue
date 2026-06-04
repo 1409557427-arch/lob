@@ -59,14 +59,48 @@
       </form>
     </LCCard>
 
+    <!-- 角色卡绑定 -->
+    <LCCard title="角色卡 · X — 脑叶公司主管" class="settings-section">
+      <div class="settings-card-info">
+        <div class="settings-card-row">
+          <span class="settings-card-field">AI 角色</span>
+          <span class="settings-card-value">Angela（安吉拉）</span>
+        </div>
+        <div class="settings-card-row">
+          <span class="settings-card-field">世界书条目</span>
+          <span class="settings-card-value">7 条</span>
+        </div>
+        <div class="settings-card-row">
+          <span class="settings-card-field">MVU 变量</span>
+          <span class="settings-card-value">5 组（设施/紧急/员工/异想体/进度）</span>
+        </div>
+        <div class="settings-card-row">
+          <span class="settings-card-field">E.G.O. 格式</span>
+          <span class="settings-card-value">武器 + 防具 + RWBP 抗性</span>
+        </div>
+        <div class="settings-card-divider" />
+        <div class="settings-actions">
+          <a :href="charCardPath" download class="settings-download-link">
+            <LCButton variant="primary" icon="Download">下载角色卡 JSON</LCButton>
+          </a>
+          <a :href="mvuPath" download class="settings-download-link">
+            <LCButton variant="ghost" icon="Download">MVU Schema</LCButton>
+          </a>
+          <a :href="statusbarPath" download class="settings-download-link">
+            <LCButton variant="ghost" icon="Download">状态栏 HTML</LCButton>
+          </a>
+        </div>
+      </div>
+    </LCCard>
+
     <!-- 数据管理 -->
     <LCCard title="数据管理" class="settings-section">
       <div class="settings-actions">
         <LCButton variant="ghost" icon="Download" @click="handleExport">
-          导出数据
+          导出备份
         </LCButton>
         <LCButton variant="ghost" icon="Upload" @click="handleImport">
-          导入数据
+          导入备份
         </LCButton>
         <LCButton variant="danger" icon="Trash2" @click="showClearModal = true">
           清空全部数据
@@ -117,6 +151,10 @@ const settings = ref({
   uiMode: settingsStore.uiMode || 'game',
   thinkingDisplay: settingsStore.thinkingDisplay || 'fold',
 })
+
+const charCardPath = window.location.origin.includes('localhost') ? '/X-脑叶公司主管.json' : '/X-脑叶公司主管.json'
+const mvuPath = '/X-mvu-schema.js'
+const statusbarPath = '/X-statusbar.html'
 
 function handleExport() {
   try {
@@ -263,5 +301,46 @@ function confirmClear() {
   display: flex;
   gap: var(--space-sm);
   justify-content: flex-end;
+}
+
+.settings-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.settings-card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--text-sm);
+}
+
+.settings-card-field {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--lc-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.settings-card-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--lc-text-secondary);
+}
+
+.settings-card-divider {
+  height: 1px;
+  background: var(--lc-border);
+  margin: var(--space-xs) 0;
+}
+
+.settings-download-link {
+  text-decoration: none;
+}
+.settings-download-link:hover {
+  text-decoration: none;
 }
 </style>

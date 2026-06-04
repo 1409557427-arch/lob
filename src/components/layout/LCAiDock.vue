@@ -190,9 +190,14 @@ onUnmounted(() => {
 
     <!-- Messages area -->
     <div ref="messagesEl" class="dock-messages">
-      <!-- Empty state -->
+      <!-- Empty state: Angela greeting from character card -->
       <div v-if="chat.messages.length === 0 && !chat.isStreaming" class="dock-empty">
-        <p>Angela 在线。输入指令开始管理设施。</p>
+        <p>早上好，主管。</p>
+        <p>今日的能量配额为 Lv.4 — {{ facility.energyQuota }} 单位。</p>
+        <p>目前设施内存有 4 个异想体。风险管理等级概况：ZAYIN ×1，TETH ×1，HE ×1，WAW ×1。</p>
+        <p>请在开始工作前确认各部门的人员分配。记住，无论发生什么，能量配额必须完成。</p>
+        <p class="dock-empty-motto">祝您管理顺利。</p>
+        <p class="dock-empty-hint">— Angela</p>
       </div>
 
       <!-- Rendered messages -->
@@ -357,13 +362,29 @@ onUnmounted(() => {
 
 .dock-empty {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
   min-height: 100%;
+  gap: 6px;
 }
 
 .dock-empty p {
-  color: var(--lc-text-muted);
+  color: var(--lc-text-secondary);
+  line-height: 1.7;
+}
+.dock-empty p:first-child {
+  font-weight: 600;
+  color: var(--lc-yellow);
+}
+.dock-empty-motto {
+  color: var(--lc-text-terminal) !important;
   font-style: italic;
+  margin-top: 4px !important;
+}
+.dock-empty-hint {
+  color: var(--lc-text-muted) !important;
+  font-size: 10px;
 }
 
 .dock-msg {
