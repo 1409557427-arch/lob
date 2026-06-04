@@ -51,7 +51,7 @@ function isActive(path: string): boolean {
         <line x1="5.5" y1="26.5" x2="8" y2="24" stroke="currentColor" stroke-width="0.75" />
         <line x1="26.5" y1="26.5" x2="24" y2="24" stroke="currentColor" stroke-width="0.75" />
       </svg>
-      <span v-show="!ui.sidebarCollapsed" class="logo-text">LC-47</span>
+      <span v-show="!ui.sidebarCollapsed" class="logo-text">LobotomyCorp</span>
     </div>
 
     <!-- Nav items -->

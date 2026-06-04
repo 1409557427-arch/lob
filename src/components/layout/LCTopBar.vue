@@ -35,7 +35,7 @@ const trumpetVariant = computed(() => {
   <header class="lc-topbar">
     <!-- Left: Branch ID + Energy -->
     <div class="topbar-left">
-      <span class="branch-id">BRANCH {{ facility.branchId }}</span>
+      <span class="branch-id">LobotomyCorp</span>
       <span class="divider-pipe">|</span>
       <div class="energy-bar-wrap">
         <div class="energy-bar-track">
